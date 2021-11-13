@@ -11,9 +11,9 @@ from util import *
 def initialize_weights(in_size,out_size,params,name=''):
     W, b = None, None
 
-    ##########################
-    ##### your code here #####
-    ##########################
+    W_shape, b_shape = (in_size, out_size), out_size
+    W = np.random.uniform(-np.sqrt(6/(in_size + out_size)), np.sqrt(6/(in_size + out_size)), W_shape)
+    b = np.zeros(b_shape)
 
     params['W' + name] = W
     params['b' + name] = b
@@ -24,9 +24,7 @@ def initialize_weights(in_size,out_size,params,name=''):
 def sigmoid(x):
     res = None
 
-    ##########################
-    ##### your code here #####
-    ##########################
+    res = 1/(1 + np.exp(-x))
 
     return res
 
@@ -47,9 +45,8 @@ def forward(X,params,name='',activation=sigmoid):
     b = params['b' + name]
 
 
-    ##########################
-    ##### your code here #####
-    ##########################
+    pre_act = np.matmul(X, W) + b
+    post_act = sigmoid(pre_act)
 
 
     # store the pre-activation and post-activation values
@@ -64,9 +61,7 @@ def forward(X,params,name='',activation=sigmoid):
 def softmax(x):
     res = None
 
-    ##########################
-    ##### your code here #####
-    ##########################
+    
 
     return res
 
