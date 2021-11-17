@@ -59,9 +59,13 @@ def forward(X,params,name='',activation=sigmoid):
 # x is [examples,classes]
 # softmax should be done for each row
 def softmax(x):
-    res = None
-
-    
+    res = np.zeros(x.shape)
+    for i in range(x.shape[0]):
+        ex = x[i,:]
+        ex -= np.max(ex)
+        num = np.exp(ex)
+        den = np.sum(num)
+        res[i,:] = (num*1.)/den    
 
     return res
 
@@ -71,10 +75,14 @@ def softmax(x):
 # probs is size [examples,classes]
 def compute_loss_and_acc(y, probs):
     loss, acc = None, None
-
-    ##########################
-    ##### your code here #####
-    ##########################
+    cnt = 0
+    for i in range(probs.shape[0]):
+        pred = np.argmax(probs[i,:])
+        if y[i, idx] == 1:
+            cnt += 1
+    
+    acc = (cnt*1.) / probs.shape[0]
+    loss = -np.sum(y * np.log(probs))
 
     return loss, acc 
 
@@ -104,9 +112,8 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
 
     # do the derivative through activation first
     # then compute the derivative W,b, and X
-    ##########################
-    ##### your code here #####
-    ##########################
+    grad_post_act = sigmoid_deriv(post_act)
+    grad_W =  
 
     # store the gradients
     params['grad_W' + name] = grad_W
