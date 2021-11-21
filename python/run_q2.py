@@ -85,24 +85,31 @@ max_iters = 500
 learning_rate = 1e-3
 # with default settings, you should get loss < 35 and accuracy > 75%
 for itr in range(max_iters):
-    total_loss = 0
+    total_loss, total_acc = 0, 0
     avg_acc = 0
     for xb,yb in batches:
-        pass
         # forward
-
+        h1 = forward(xb,params,'layer1')
+        probs = forward(h1,params,'output',softmax)
         # loss
-        # be sure to add loss and accuracy to epoch totals 
+        loss, acc = compute_loss_and_acc(yb, probs)
+        total_loss += loss 
+        total_acc += acc 
+        # be sure to add loss   and accuracy to epoch totals 
 
         # backward
+        delta1 = probs - yb
+        # delta1[np.arange(probs.shape[0]),yb] -= 1 
 
+        delta2 = backwards(delta1,params,'output',linear_deriv)
+        backwards(delta2,params,'layer1',sigmoid_deriv)
         # apply gradient
+        params['Wlayer1'] -= learning_rate*params['grad_Wlayer1']
+        params['blayer1'] -= learning_rate*params['grad_blayer1']
+        params['Woutput'] -= learning_rate*params['grad_Woutput']
+        params['boutput'] -= learning_rate*params['grad_boutput']
 
-        ##########################
-        ##### your code here #####
-        ##########################
-
-        
+    avg_acc = total_acc / len(batches)
     if itr % 100 == 0:
         print("itr: {:02d} \t loss: {:.2f} \t acc : {:.2f}".format(itr,total_loss,avg_acc))
 
@@ -122,6 +129,7 @@ eps = 1e-6
 for k,v in params.items():
     if '_' in k: 
         continue
+        
     # we have a real parameter!
     # for each value inside the parameter
     #   add epsilon
@@ -129,9 +137,53 @@ for k,v in params.items():
     #   get the loss
     #   compute derivative with central diffs
     
-    ##########################
-    ##### your code here #####
-    ##########################
+    if 'W' in k: #weight
+        dims = v.shape
+        for i in range(dims[0]):
+            for j in range(dims[1]):
+                # v[i,j] += eps
+                v[i,j] += eps
+                h1 = forward(x, params, 'layer1')
+                probs = forward(h1, params, 'output', softmax)
+                loss1, acc1 = compute_loss_and_acc(y, probs)
+                
+                v[i,j] -= 2*eps
+                h1 = forward(x, params, 'layer1')
+                probs = forward(h1, params, 'output', softmax)
+                loss2, acc2 = compute_loss_and_acc(y, probs)
+
+                diff = (loss1 - loss2) / (2 * eps)
+
+                params['grad_' + k][i,j] = diff
+                v[i,j] += eps
+
+    elif 'b' in k:
+        dims = v.shape
+        for i in range(dims[0]):
+            # v[i,j] += eps
+            v[i] += eps
+            h1 = forward(x, params, 'layer1')
+            probs = forward(h1, params, 'output', softmax)
+            loss1, _ = compute_loss_and_acc(y, probs)
+            
+            v[i] -= 2*eps
+            h1 = forward(x, params, 'layer1')
+            probs = forward(h1, params, 'output', softmax)
+            loss2, _ = compute_loss_and_acc(y, probs)
+
+            diff = (loss1 - loss2) / (2 * eps)
+
+            params['grad_' + k][i] = diff
+            v[i] += eps
+
+
+h1 = forward(x, params_orig, 'layer1')
+probs = forward(h1, params_orig, 'output', softmax)
+loss, acc = compute_loss_and_acc(y, probs)
+delta1 = probs - y
+delta2 = backwards(delta1, params_orig, 'output', linear_deriv)
+backwards(delta2, params_orig, 'layer1', sigmoid_deriv)
+
 
 total_error = 0
 for k in params.keys():

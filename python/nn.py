@@ -46,7 +46,7 @@ def forward(X,params,name='',activation=sigmoid):
 
 
     pre_act = np.matmul(X, W) + b
-    post_act = sigmoid(pre_act)
+    post_act = activation(pre_act)
 
 
     # store the pre-activation and post-activation values
@@ -78,7 +78,7 @@ def compute_loss_and_acc(y, probs):
     cnt = 0
     for i in range(probs.shape[0]):
         pred = np.argmax(probs[i,:])
-        if y[i, idx] == 1:
+        if y[i, pred] == 1:
             cnt += 1
     
     acc = (cnt*1.) / probs.shape[0]
@@ -112,9 +112,12 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
 
     # do the derivative through activation first
     # then compute the derivative W,b, and X
-    grad_post_act = sigmoid_deriv(post_act)
-    grad_W =  
-
+    # delta = dL/dy_hat
+    grad_post_act = activation_deriv(post_act)
+    grad_W = np.matmul(X.T, grad_post_act*delta)
+    grad_X = np.matmul(grad_post_act*delta, W.T)
+    grad_b = np.matmul(np.ones((1, delta.shape[0])), grad_post_act*delta)
+    grad_b = grad_b.flatten()
     # store the gradients
     params['grad_W' + name] = grad_W
     params['grad_b' + name] = grad_b
@@ -123,9 +126,42 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
 ############################## Q 2.4 ##############################
 # split x and y into random batches
 # return a list of [(batch1_x,batch1_y)...]
+# def get_random_batches(x,y,batch_size):
+#     batches = []
+#     num = x.shape[0]
+#     indices = np.arange(num)
+#     indices = np.random.shuffle(indices)
+#     num_batches = num // batch_size
+#     batches = []
+#     if num % batch_size != 0:
+#         num_batches += 1
+#     for i in range(num_batches):
+#         if (i + 1)*batch_size > num:
+#             batches_x = x[i*batch_size : ]
+#             batches_y = y[i*batch_size : ]
+#         else:
+#             batches_x = x[i*batch_size : (i + 1)*batch_size]      
+#             batches_y = y[i*batch_size : (i + 1)*batch_size]      
+#         batches.append((batches_x, batches_y))
+#     return batches
+
 def get_random_batches(x,y,batch_size):
     batches = []
-    ##########################
-    ##### your code here #####
-    ##########################
+    num_examples = x.shape[0]
+    num_dimension = x.shape[1]
+    num_output = y.shape[1]
+    num_batches = int(num_examples / batch_size)
+
+    for batch_id in range(num_batches):
+        id_selected = np.random.choice(np.arange(num_examples), size=batch_size, replace=False)
+        xi = np.zeros((batch_size, num_dimension))
+        yi = np.zeros((batch_size, num_output))
+
+        # for i in range(batch_size):
+        #     xi[i] = x[id_selected[i]]
+        #     yi[i] = y[id_selected[i]]
+        xi[:] = x[id_selected]
+        yi[:] = y[id_selected]
+        batches.append((xi, yi))
+
     return batches
