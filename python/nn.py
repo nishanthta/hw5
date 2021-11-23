@@ -126,42 +126,21 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
 ############################## Q 2.4 ##############################
 # split x and y into random batches
 # return a list of [(batch1_x,batch1_y)...]
-# def get_random_batches(x,y,batch_size):
-#     batches = []
-#     num = x.shape[0]
-#     indices = np.arange(num)
-#     indices = np.random.shuffle(indices)
-#     num_batches = num // batch_size
-#     batches = []
-#     if num % batch_size != 0:
-#         num_batches += 1
-#     for i in range(num_batches):
-#         if (i + 1)*batch_size > num:
-#             batches_x = x[i*batch_size : ]
-#             batches_y = y[i*batch_size : ]
-#         else:
-#             batches_x = x[i*batch_size : (i + 1)*batch_size]      
-#             batches_y = y[i*batch_size : (i + 1)*batch_size]      
-#         batches.append((batches_x, batches_y))
-#     return batches
-
 def get_random_batches(x,y,batch_size):
     batches = []
-    num_examples = x.shape[0]
-    num_dimension = x.shape[1]
-    num_output = y.shape[1]
-    num_batches = int(num_examples / batch_size)
-
-    for batch_id in range(num_batches):
-        id_selected = np.random.choice(np.arange(num_examples), size=batch_size, replace=False)
-        xi = np.zeros((batch_size, num_dimension))
-        yi = np.zeros((batch_size, num_output))
-
-        # for i in range(batch_size):
-        #     xi[i] = x[id_selected[i]]
-        #     yi[i] = y[id_selected[i]]
-        xi[:] = x[id_selected]
-        yi[:] = y[id_selected]
-        batches.append((xi, yi))
-
+    num = x.shape[0]
+    indices = np.arange(num)
+    indices = np.random.shuffle(indices)
+    num_batches = num // batch_size
+    batches = []
+    if num % batch_size != 0:
+        num_batches += 1
+    for i in range(num_batches):
+        if (i + 1)*batch_size > num:
+            batches_x = x[i*batch_size : ]
+            batches_y = y[i*batch_size : ]
+        else:
+            batches_x = x[i*batch_size : (i + 1)*batch_size]      
+            batches_y = y[i*batch_size : (i + 1)*batch_size]      
+        batches.append((batches_x, batches_y))
     return batches
