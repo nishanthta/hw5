@@ -130,17 +130,9 @@ def get_random_batches(x,y,batch_size):
     batches = []
     num = x.shape[0]
     indices = np.arange(num)
-    indices = np.random.shuffle(indices)
-    num_batches = num // batch_size
-    batches = []
-    if num % batch_size != 0:
-        num_batches += 1
-    for i in range(num_batches):
-        if (i + 1)*batch_size > num:
-            batches_x = x[i*batch_size : ]
-            batches_y = y[i*batch_size : ]
-        else:
-            batches_x = x[i*batch_size : (i + 1)*batch_size]      
-            batches_y = y[i*batch_size : (i + 1)*batch_size]      
-        batches.append((batches_x, batches_y))
+    np.random.shuffle(indices)
+    batches_indexed = np.array_split(indices, batch_size)
+    for batch_indexed in batches_indexed:
+        batches.append((x[batch_indexed], y[batch_indexed]))
+
     return batches

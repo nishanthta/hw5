@@ -23,9 +23,10 @@ params = Counter()
 
 # Q5.1 & Q5.2
 # initialize layers here
-##########################
-##### your code here #####
-##########################
+initialize_weights(1024, hidden_size, params, 'l1')
+initialize_weights(hidden_size, hidden_size, params, 'h1')
+initialize_weights(hidden_size, hidden_size, params, 'h2')
+initialize_weights(hidden_size, 1024, params, 'out')
 
 # should look like your previous training loops
 for itr in range(max_iters):
@@ -40,9 +41,15 @@ for itr in range(max_iters):
         #   params is a Counter(), which returns a 0 if an element is missing
         #   so you should be able to write your loop without any special conditions
 
-        ##########################
-        ##### your code here #####
-        ##########################
+        h1 = forward(xb, params, 'l1', relu)
+        h2 = forward(h1, params, 'h1', relu)
+        h3 = forward(h2, params, 'h2', relu)
+        output = forward(h1, params, 'out', softmax)
+        
+        loss = (xb - output)**2
+        delta = 2*(xb - output)
+
+        
 
     if itr % 2 == 0:
         print("itr: {:02d} \t loss: {:.2f}".format(itr,total_loss))

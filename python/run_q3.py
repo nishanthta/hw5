@@ -1,3 +1,5 @@
+
+   
 import numpy as np
 import scipy.io
 import matplotlib.pyplot as plt
@@ -9,7 +11,7 @@ valid_data = scipy.io.loadmat('./data/nist36_valid.mat')
 train_x, train_y = train_data['train_data'], train_data['train_labels']
 valid_x, valid_y = valid_data['valid_data'], valid_data['valid_labels']
 
-max_iters = 50
+max_iters = 80
 # pick a batch size, learning rate
 batch_size = 32
 learning_rate = 2e-3
@@ -70,6 +72,7 @@ for itr in range(max_iters):
 
     if itr % 2 == 0:
         print("itr: {:02d} \t loss: {:.2f} \t acc : {:.2f}".format(itr,total_loss,total_acc))
+        print(valid_acc)
 
 plt.plot(np.arange(max_iters),train_losses,'r')
 plt.plot(np.arange(max_iters),val_losses,'b')

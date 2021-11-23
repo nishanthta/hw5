@@ -20,6 +20,17 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 
+def square_pad_image(img):
+    (y,x) = np.shape(img)
+    if (y > x): # we pad to add to x
+        pad_val = int(np.round((y-x)/2))+20
+        padding = ((20,), (pad_val,))
+    else:
+        pad_val = int(np.round((x-y)/2))+20
+        padding = ((pad_val,), (20,))
+    # padding = ((20,), (20,))
+    return np.pad(img, padding, mode='constant', constant_values=(0,0))
+
 for img in os.listdir('./images'):
     im1 = skimage.img_as_float(skimage.io.imread(os.path.join('./images',img)))
     bboxes, bw = findLetters(im1)
@@ -31,7 +42,6 @@ for img in os.listdir('./images'):
                                 fill=False, edgecolor='red', linewidth=2)
         plt.gca().add_patch(rect)
     # plt.show()
-    # print(bboxes[0])
     bboxes_sorted = bboxes
     bboxes_sorted.sort()
     rows = defaultdict(list)
@@ -49,9 +59,17 @@ for img in os.listdir('./images'):
     for box in bboxes_sorted:
         x1, y1, x2, y2 = box
         cropped = bw[x1:x2 + 1, y1:y2 + 1]
-        cropped_eroded = skimage.morphology.binary_erosion(cropped)
-        cropped = skimage.transform.resize(cropped_eroded, (32, 32))
-        all_letters.append(cropped.transpose().flatten())
+        cropped = skimage.morphology.binary_erosion(cropped)
+        cropped = np.pad(cropped, ((50, 50), (50, 50)), 'constant', constant_values=0.0)
+        cropped = skimage.transform.resize(cropped, (32, 32))
+        cropped = skimage.morphology.dilation(cropped, skimage.morphology.square(3))
+        
+        cropped = 1. - cropped
+        # plt.imshow(cropped, cmap = 'gray')
+        # plt.show()
+        # plt.clf()
+        cropped = cropped.transpose().flatten()
+        all_letters.append(cropped)
     # continue
     
     # load the weights
@@ -71,9 +89,4 @@ for img in os.listdir('./images'):
         rowlen = len(vals)
         predrows[row] = preds[idx:idx + rowlen]
         idx += rowlen + 1
-
-
-
-
     continue
-    
