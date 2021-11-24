@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.core.numeric import indices
 from util import *
 # do not include any more libraries here!
 # do not put any code outside of functions!
@@ -95,28 +96,19 @@ def sigmoid_deriv(post_act):
     return res
 
 def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
-    """
-    Do a backwards pass
-
-    Keyword arguments:
-    delta -- errors to backprop
-    params -- a dictionary containing parameters
-    name -- name of the layer
-    activation_deriv -- the derivative of the activation_func
-    """
     grad_X, grad_W, grad_b = None, None, None
     # everything you may need for this layer
     W = params['W' + name]
     b = params['b' + name]
     X, pre_act, post_act = params['cache_' + name]
-
+    # your code here
     # do the derivative through activation first
     # then compute the derivative W,b, and X
-    # delta = dL/dy_hat
-    grad_post_act = activation_deriv(post_act)
-    grad_W = np.matmul(X.T, grad_post_act*delta)
-    grad_X = np.matmul(grad_post_act*delta, W.T)
-    grad_b = np.matmul(np.ones((1, delta.shape[0])), grad_post_act*delta)
+    num,_ = delta.shape
+    gpa = activation_deriv(post_act)
+    grad_W = np.matmul(X.T, gpa * delta)
+    grad_X = np.matmul(gpa * delta, W.T)
+    grad_b = np.matmul(np.ones((1, num)), gpa * delta)
     grad_b = grad_b.flatten()
     # store the gradients
     params['grad_W' + name] = grad_W
@@ -126,13 +118,12 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
 ############################## Q 2.4 ##############################
 # split x and y into random batches
 # return a list of [(batch1_x,batch1_y)...]
+
+
 def get_random_batches(x,y,batch_size):
     batches = []
-    num = x.shape[0]
-    indices = np.arange(num)
-    np.random.shuffle(indices)
-    batches_indexed = np.array_split(indices, batch_size)
-    for batch_indexed in batches_indexed:
-        batches.append((x[batch_indexed], y[batch_indexed]))
-
+    num,_ = x.shape
+    indices = np.random.choice(num,size = ((num // batch_size),batch_size))
+    for i in range(len(indices)):
+        batches.append((x[indices[i],:], y[indices[i],:]))
     return batches

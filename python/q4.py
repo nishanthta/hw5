@@ -19,6 +19,8 @@ def findLetters(image):
     blur = skimage.filters.gaussian(skimage.color.rgb2gray(image), sigma = 1)
     thresh = skimage.filters.threshold_otsu(blur)
     bw = blur < thresh
+    bw = skimage.morphology.opening(bw)
+    bw = skimage.morphology.dilation(bw, np.ones((7,7)))
     labels,_ = skimage.measure.label(bw, background=0, return_num = True, connectivity = 2)
     regions = skimage.measure.regionprops(labels)
     for i in range(len(regions)):
